@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Love Confession</title>
+    <meta name="description" content="A playful love confirmation app" />
+    <!-- Minimal styles to keep layout reasonable when Tailwind isn't available -->
+    <style>
+      html,body,#root{height:100%;margin:0}
+      body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+      .center{display:flex;align-items:center;justify-content:center;height:100%}
+      .card{background:rgba(255,255,255,0.95);border-radius:24px;padding:32px;box-shadow:0 10px 30px rgba(0,0,0,0.12);max-width:440px;text-align:center}
+      .btn{border:0;padding:12px 28px;border-radius:999px;font-weight:700;cursor:pointer}
+      .btn-yes{background:#10b981;color:white}
+      .btn-no{background:#ef4444;color:white;margin-left:12px}
+    </style>
+  </head>
+  <body>
+    <div id="root" class="center"></div>
+
+    <!-- React and Babel (Babel used so original JSX can remain unchanged without a build step) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useState } = React;
+
+      function LoveConfession() {
+        const [noClickCount, setNoClickCount] = useState(0);
+        const [showResult, setShowResult] = useState(false);
+        const [noButtonPos, setNoButtonPos] = useState({ x: 0, y: 0 });
+
+        const stickers = {
+          normal: '😊',
+          sad1: '😢',
+          sad2: '😭',
+          sad3: '💔',
+          happy: '🥰'
+        };
+
+        const getCurrentSticker = () => {
+          if (showResult) return stickers.happy;
+          if (noClickCount === 0) return stickers.normal;
+          if (noClickCount === 1) return stickers.sad1;
+          if (noClickCount === 2) return stickers.sad2;
+          return stickers.sad3;
+        };
+
+        const handleNoClick = () => {
+          if (noClickCount < 3) {
+            setNoClickCount(noClickCount + 1);
+          }
+        };
+
+        const handleNoHover = () => {
+          if (noClickCount >= 3) {
+            const randomX = Math.random() * (window.innerWidth - 200);
+            const randomY = Math.random() * (window.innerHeight - 200);
+            setNoButtonPos({ x: randomX, y: randomY });
+          }
+        };
+
+        const handleYesClick = () => {
+          setShowResult(true);
+        };
+
+        if (showResult) {
+          return (
+            <div style={{padding:24}}>
+              <div style={{fontSize:120}}> {stickers.happy} </div>
+              <h1 style={{fontSize:40,margin:0}}>I knew it! 💕</h1>
+            </div>
+          );
+        }
+
+        const noButtonStyles = noClickCount >= 3
+          ? { position: 'fixed', left: `${noButtonPos.x}px`, top: `${noButtonPos.y}px`, transition: 'all 0.3s ease' }
+          : {};
+
+        return (
+          <div className="center">
+            <div className="card">
+              <div style={{fontSize:64}}>{getCurrentSticker()}</div>
+              <h1 style={{fontSize:24}}>Do you love me? ❤️</h1>
+
+              <div style={{marginTop:18}}>
+                <button className="btn btn-yes" onClick={handleYesClick}>Yes 💖</button>
+                <button
+                  className="btn btn-no"
+                  onClick={handleNoClick}
+                  onMouseEnter={handleNoHover}
+                  style={noButtonStyles}
+                >
+                  No 💔
+                </button>
+              </div>
+
+              {noClickCount > 0 && noClickCount < 3 && (
+                <p style={{color:'#555',marginTop:16,fontStyle:'italic'}}>
+                  {noClickCount === 1 && 'Please reconsider... 🥺'}
+                  {noClickCount === 2 && "You're breaking my heart... 💔"}
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<LoveConfession />);
+    </script>
+  </body>
+</html>
